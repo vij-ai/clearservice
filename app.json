@@ -21,11 +21,17 @@
       "supportsTablet": true
     },
     "android": {
+      "versionCode": 1,
+      "permissions": [],
+      "icon": "./assets/images/icon.png",
+
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.connectingdesires.celsius"
+      "package": "com.connectingdesires.celsius",
+
+      "useNextNotificationsApi": true
     },
     "web": {
       "favicon": "./assets/images/favicon.png"

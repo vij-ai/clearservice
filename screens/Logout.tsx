@@ -5,7 +5,7 @@ import Menu, { MenuItem, MenuDivider } from "react-native-material-menu";
 import * as firebase from "firebase";
 import "firebase/firestore";
 //import { AsyncStorage } from "react-native";
-import { AsyncStorage } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default class Logout extends Component {
   _menu = null;
@@ -35,7 +35,7 @@ export default class Logout extends Component {
           //marginRight: 10,
         }}
       >
-        <Title
+        {/* <Title
           style={{
             fontSize: 30,
             flexDirection: "column",
@@ -44,19 +44,20 @@ export default class Logout extends Component {
         >
           {" "}
           Celsius is connecting people anonymously{" "}
-        </Title>
+        </Title> */}
         <Title style={{ fontSize: 30 }}> On the Posts page </Title>
         <Title> Swipe left to move to next card </Title>
         <Title> Swipe right to begin chat </Title>
-        <Title
+        {/* <Title> Click create to create your post </Title> */}
+        {/* <Title
           style={{
             fontSize: 30,
             marginTop: 40,
-            marginHorizontal: 20,
+            //marginHorizontal: 20,
           }}
         >
           Click Create to create your anonymous post
-        </Title>
+        </Title> */}
         <Title style={{ fontSize: 30, marginTop: 40 }}> On Chats page </Title>
         <Title> View your chats with users </Title>
         <Title> Click username to chat </Title>

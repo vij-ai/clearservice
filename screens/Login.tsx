@@ -20,23 +20,8 @@ import * as firebase from "firebase";
 
 import "firebase/firestore";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDkp_t4Y1Qrn2pavmWvUaHazsln4O7m360",
-  authDomain: "yenn-761d1.firebaseapp.com",
-  projectId: "yenn-761d1",
-  storageBucket: "yenn-761d1.appspot.com",
-  messagingSenderId: "140915950891",
-  appId: "1:140915950891:web:63796dfc430d35cd55316e",
-  measurementId: "G-FQ6DFP1929",
-};
-
 //firebase.initializeApp(firebaseConfig);
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-} else {
-  firebase.app(); // if already initialized, use that one
-}
 const { width, height } = Dimensions.get("screen");
 
 export default function Login({ navigation }) {

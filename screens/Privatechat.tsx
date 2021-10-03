@@ -5,8 +5,10 @@ import { GiftedChat } from "react-native-gifted-chat";
 import * as firebase from "firebase";
 import "firebase/firestore";
 import Loading from "../components/Loading";
-
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
 import { AsyncStorage } from "react-native";
+import { List } from "react-native-paper";
 
 // var email = "null";
 // var name = "null";
@@ -37,28 +39,26 @@ export default function Privatechat({ route, navigation }) {
 
   const otheruser = route.params.otherUser.email; //otheremail
   const otherusername = route.params.otherUser.name;
-  console.log("!!user", route);
+  //console.log("!!user", route);
   const email = route.params.email; //useremail
   const name = route.params.name; // user name
 
-  console.log("!!email", email);
+  //console.log("!!email", email);
 
   const db = firebase.firestore();
 
-  //   const tokenlist = firebase
-  //     .firestore()
-  //     .collection("expopushtokennew")
-  //     .doc(otheruser);
+  const tokenlist = firebase
+    .firestore()
+    .collection("expopushtokennew")
+    .doc(otheruser);
   const [data, setData] = useState([]);
 
-  //useEffect(() => {
-  //   tokenlist.get().then((doc) => {
-  //     const list = [];
-  //     list.push(doc.data());
-  //     setData(list);
-  //   });
-  //}, [email]);
-
+  tokenlist.get().then((doc) => {
+    const list = [];
+    list.push(doc.data());
+    setData(list);
+  });
+  console.log("otheruserpush", data);
   // useEffect(() => {
   //   return tokenlist.onSnapshot((querySnapshot) => {
   //     const list = [];
@@ -125,20 +125,20 @@ export default function Privatechat({ route, navigation }) {
 
     .orderBy("createdAt", "desc");
 
-  //   async function sendPushNotification() {
-  //     //console.log("@@inside push noti");
-  //     const message = data;
+  async function sendPushNotification() {
+    console.log("@@inside push noti");
+    const message = data;
 
-  //     await fetch("https://exp.host/--/api/v2/push/send", {
-  //       method: "POST",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Accept-encoding": "gzip, deflate",
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify(message),
-  //     });
-  //   }
+    await fetch("https://exp.host/--/api/v2/push/send", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Accept-encoding": "gzip, deflate",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(message),
+    });
+  }
 
   function handleSend(newMessages) {
     const text = newMessages[0].text;
@@ -153,7 +153,7 @@ export default function Privatechat({ route, navigation }) {
       // _id: userid,
     });
 
-    //sendPushNotification();
+    sendPushNotification();
   }
 
   useEffect(() => {

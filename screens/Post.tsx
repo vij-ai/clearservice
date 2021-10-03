@@ -1,51 +1,26 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { IconButton, Title } from "react-native-paper";
+import { View, StyleSheet, Dimensions } from "react-native";
+import { IconButton, Title, TextInput } from "react-native-paper";
 import FormInput from "../components/FormInput";
 import FormButton from "../components/FormButton";
 import * as firebase from "firebase";
 import "firebase/firestore";
-import { Tile } from "react-native-elements/dist/tile/Tile";
 
-// var email = "null";
-// var name = "null";
-
-// const getData = async () => {
-//   try {
-//     email = await AsyncStorage.getItem("userEmail");
-//     name = await AsyncStorage.getItem("userName");
-//     if (email !== "null") {
-//       console.log("##emailworking in tabone", email);
-//       //navigation.navigate("Atlantis", { email, name });
-
-//       // navigation.navigate("Atlantis", email);
-//     } else {
-//       console.log("##email not working in tabone", email);
-//     }
-//   } catch (e) {
-//     //return isLoggedIn;
-//     // error reading value
-//   }
-// };
-
-// getData;
+const { width, height } = Dimensions.get("screen");
 
 export default function Post({ navigation, route }) {
-  const [post, setPost] = useState("");
+  const [Post, setPost] = useState("");
   // ... Firestore query will come here later
 
-  const handleButtonPress = (post) => {
+  const handleButtonPress = (Post) => {
     const db = firebase.firestore();
-    // db.settings({
-    //   timestampsInSnapshots: true,
-    // });
+
     db.collection("Posts").add({
-      Post: post,
+      Post: Post,
       email: route.params.email,
       name: route.params.name,
       createdAt: new Date().getTime(),
     });
-    //alert("Posted");
     navigation.goBack();
   };
 
@@ -60,19 +35,21 @@ export default function Post({ navigation, route }) {
         />
       </View>
       <View style={styles.innerContainer}>
-        <Title style={styles.title}>Create a new Post</Title>
-        <FormInput
-          //labelname="Type your desires"
-          value={post}
+        <Title style={styles.title}>Create your anonymous post</Title>
+        <TextInput
+          label="Write what u'r looking for.. or any thoughts"
+          value={Post}
           onChangeText={(text) => setPost(text)}
           clearButtonMode="while-editing"
+          style={styles.input}
+          theme={{ colors: { primary: "black" } }}
         />
         <FormButton
           title="Post"
           modevalue="contained"
           labelStyle={styles.buttonLabel}
-          onPress={() => handleButtonPress(post)}
-          disabled={post.length < 10 || post.length > 180}
+          onPress={() => handleButtonPress(Post)}
+          disabled={Post.length < 10 || Post.length > 180}
           uppercase={false}
         />
       </View>
@@ -100,6 +77,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  input: {
+    marginTop: 10,
+    marginBottom: 10,
+    width: width / 1.1,
+    height: height / 8,
+    //ontSize: 12,
+
+    //color: "black",
   },
   title: {
     fontSize: 24,

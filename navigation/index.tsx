@@ -34,11 +34,29 @@ import Post from "../screens/Post";
 import Logout from "../screens/Logout";
 import { Title } from "react-native-paper";
 import Terms from "../screens/Terms";
-// import {
-//   Provider as PaperProvider,
-//   IconButton,
-//   Title,
-// } from "react-native-paper";
+
+import * as firebase from "firebase";
+
+import "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDkp_t4Y1Qrn2pavmWvUaHazsln4O7m360",
+  authDomain: "yenn-761d1.firebaseapp.com",
+  projectId: "yenn-761d1",
+  storageBucket: "yenn-761d1.appspot.com",
+  messagingSenderId: "140915950891",
+  appId: "1:140915950891:web:63796dfc430d35cd55316e",
+  measurementId: "G-FQ6DFP1929",
+};
+
+//firebase.initializeApp(firebaseConfig);
+
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+} else {
+  firebase.app(); // if already initialized, use that one
+}
+
 export default function Navigation({
   colorScheme,
 }: {
@@ -163,6 +181,25 @@ function BottomTabNavigator(route) {
         component={TabOneScreen}
         initialParams={route}
         options={({ navigation }: RootTabScreenProps<"TabOne">) => ({
+          headerStyle: {
+            //borderBottomLeftRadius: 15,
+            shadowColor: "#000",
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+
+            elevation: 8,
+            backgroundColor: "white",
+            borderBottomColor: "red",
+            borderBottomWidth: 1,
+            //shadowRadius: 55,
+            //shadowColor: "red",
+            //shadowOpacity: 10,
+            //height: 120,
+          },
           title: "Posts",
           // headerTintColor: "yellow",
           // headerBackgroundContainerStyle: { backgroundColor: "black" },
@@ -191,6 +228,8 @@ function BottomTabNavigator(route) {
               onPress={() => navigation.navigate("Logout")}
               style={({ pressed }) => ({
                 opacity: pressed ? 0.5 : 1,
+                //backgroundColor: "white",
+                shadowColor: "white",
               })}
             >
               <FontAwesome
@@ -209,6 +248,8 @@ function BottomTabNavigator(route) {
         initialParams={route}
         options={{
           title: "Chats",
+
+          headerTitleStyle: { fontWeight: "bold" },
           tabBarIcon: ({ color }) => <TabBarIcon name="send" color={color} />,
         }}
       />

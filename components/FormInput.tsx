@@ -26,7 +26,8 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     width: width / 1.3,
-    height: height / 12,
+    height: height / 14,
+
     //color: "black",
   },
 });

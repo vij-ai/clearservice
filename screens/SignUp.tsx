@@ -7,15 +7,19 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import Forminput from "../components/FormInput";
 import { useState } from "react";
 import Formbutton from "../components/FormButton";
+const { width, height } = Dimensions.get("screen");
+
 import * as firebase from "firebase";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function SignUp({ navigation }) {
   const [Email, setEmail] = useState("");
+  const [Post, setPost] = useState("");
   const [Password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
 
@@ -30,7 +34,7 @@ export default function SignUp({ navigation }) {
     }
   };
 
-  const signupUser = async (email, password, userName) => {
+  const signupUser = async (email, password, userName, Post) => {
     try {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       const user = firebase.auth().currentUser;
@@ -43,6 +47,15 @@ export default function SignUp({ navigation }) {
           .catch(function (error) {
             alert(error.message, error);
           });
+
+        const db = firebase.firestore();
+
+        db.collection("Posts").add({
+          Post: Post,
+          email: email,
+          name: password,
+          createdAt: new Date().getTime(),
+        });
       }
       storeLoginData(email, userName);
       navigation.navigate("Root", { email: email, name: userName });
@@ -54,9 +67,10 @@ export default function SignUp({ navigation }) {
   return (
     <ScrollView>
       <View style={styles.container}>
-        <Title style={styles.titleText}>Celsious</Title>
+        <Title style={styles.titleText}>Celsius</Title>
         <Title style={styles.description}>
-          Anonymously post your emotions{"\n"}Swipe right to start chat
+          Anonymously post your desires{"\n"}Swipe right to start chat with
+          anyone
         </Title>
         {/* <Title style={styles.description}>Swipe right to start chat</Title> */}
 
@@ -79,7 +93,18 @@ export default function SignUp({ navigation }) {
           secureTextEntry={true}
           onChangeText={(userPassword) => setPassword(userPassword)}
         />
+
+        <TextInput
+          label="Write what your looking for. This will be your first post"
+          value={Post}
+          onChangeText={(text) => setPost(text)}
+          clearButtonMode="while-editing"
+          style={styles.input}
+          theme={{ colors: { primary: "black" } }}
+        />
         <View style={{ flexDirection: "row", marginTop: 8, marginBottom: 9 }}>
+          <Text> </Text>
+
           <Text>Via sigining up you accept the </Text>
           <Text
             style={{ textDecorationLine: "underline" }}
@@ -94,7 +119,21 @@ export default function SignUp({ navigation }) {
           modevalue="contained"
           uppercase={false}
           labelStyle={styles.navButtonText}
-          onPress={() => signupUser(Email, Password, userName)}
+          onPress={() => {
+            if (userName.length == 0) {
+              alert("Nickname should be atleast 1 character");
+            }
+
+            if (Post.length < 10 || Post.length > 180) {
+              alert(
+                "Letters in your Post should be greater than 10 and less than 180"
+              );
+            } else {
+              {
+                signupUser(Email, Password, userName, Post);
+              }
+            }
+          }}
         />
       </View>
     </ScrollView>
@@ -118,6 +157,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginBottom: 10,
     textAlign: "center",
+  },
+  input: {
+    marginTop: 10,
+    marginBottom: 10,
+    width: width / 1.1,
+    height: height / 10,
+    fontSize: 12,
+
+    //color: "black",
   },
 
   loginButtonLabel: {

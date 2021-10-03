@@ -4,10 +4,12 @@ import {
   StyleSheet,
   View,
   Image,
-  Button,
   StatusBar,
+  Dimensions,
   Alert,
 } from "react-native";
+import { Button } from "react-native-paper";
+import Constants from "expo-constants";
 import Swiper from "react-native-deck-swiper";
 import { OverlayLabel } from "../components/OverLayLabel";
 import { Card } from "../components/Card";
@@ -15,34 +17,24 @@ import { HomeScreenPics } from "../constants/Pics";
 import styles from "./Styles";
 import FormButton from "../components/FormButton";
 import { useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-// var email = "null";
-// var name = "null";
+import * as Notifications from "expo-notifications";
+import * as Permissions from "expo-permissions";
+
 import * as firebase from "firebase";
 import "firebase/firestore";
 import Loading from "../components/Loading";
 
-// const getData = async () => {
-//   try {
-//     email = await AsyncStorage.getItem("userEmail");
-//     name = await AsyncStorage.getItem("userName");
-//     if (email !== "null") {
-//       console.log("##emailworking in tabone", email);
-//       //navigation.navigate("Atlantis", { email, name });
+const { width, height } = Dimensions.get("screen");
 
-//       // navigation.navigate("Atlantis", email);
-//     } else {
-//       console.log("##email not working in tabone", email);
-//     }
-//   } catch (e) {
-//     //return isLoggedIn;
-//     // error reading value
-//   }
-// };
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: false,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function HomeScreen({ navigation, route }) {
-  //getData();
-
   //var filPics = HomeScreenPics;
 
   const email = route.params.route.params.email;
@@ -50,6 +42,107 @@ export default function HomeScreen({ navigation, route }) {
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] = useState(false);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
+  const [data, setData] = useState([]);
+  const db = firebase.firestore();
+
+  const tokenlist = firebase.firestore().collection("expopushtokennew");
+  //console.log("tokenlist", tokenlist);
+
+  useEffect(() => {
+    //console.log("inside use effect");
+    registerForPushNotificationsAsync().then((token) =>
+      setExpoPushToken(token)
+    );
+
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        Notifications.dismissNotificationAsync(notification.notificationId);
+
+        setNotification(notification);
+      }
+    );
+
+    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log(response);
+      }
+    );
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
+  async function registerForPushNotificationsAsync() {
+    console.log("inside registerforpush");
+    let token;
+    if (Constants.isDevice) {
+      //console.log("inside constants");
+      const { status: existingStatus } = await Permissions.getAsync(
+        Permissions.NOTIFICATIONS
+      );
+      let finalStatus = existingStatus;
+      if (existingStatus !== "granted") {
+        const { status } = await Permissions.askAsync(
+          Permissions.NOTIFICATIONS
+        );
+        finalStatus = status;
+      }
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
+        return;
+      }
+      //token = (await Notifications.getDevicePushTokenAsync()).data;
+      token = (await Notifications.getExpoPushTokenAsync()).data;
+      firebase.firestore().collection("expopushtokennew").doc(email).set(
+        {
+          to: token,
+          //to: data,
+          sound: "default",
+          title: "New message received",
+          // createdAt: new Date().getTime(),
+          // lastActive: new Date().getTime(),
+        },
+        { merge: true }
+      );
+
+      // db.collection("expopushtoken")
+      //   .doc(token)
+      //   .set(
+      //     {
+      //       latestMessage: {
+      //         text,
+      //         createdAt: new Date().getTime(),
+      //       },
+      //       lastActive: new Date().getTime(),
+      //     },
+      //     { merge: true }
+      //   );
+      console.log("token", token);
+    } else {
+      alert("Must use physical device for Push Notifications");
+    }
+
+    if (Platform.OS === "android") {
+      Notifications.setNotificationChannelAsync("default", {
+        name: "default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: "#FF231F7C",
+      });
+    }
+
+    return token;
+  }
 
   const ref = firebase
     .firestore()
@@ -61,7 +154,7 @@ export default function HomeScreen({ navigation, route }) {
       const list = [];
       querySnapshot.forEach((doc) => {
         const ChatMessages = doc.data();
-        console.log("Chatmessahes", ChatMessages);
+        //console.log("Chatmessahes", ChatMessages);
         list.push({
           pic: require("../assets/images/Benares.jpg"),
 
@@ -86,10 +179,14 @@ export default function HomeScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styless.container}>
       <Swiper
+        animateCardOpacity={true}
+        
         cards={messages}
         renderCard={Card}
         infinite
-        backgroundColor="#fdf8f1"
+        //backgroundColor="#fdf8f1"
+
+        backgroundColor="black"
         //"#F2F2F2"
         onTapCardDeadZone={80}
         // onTapCard={() => console.log("@just tapped ")}
@@ -117,6 +214,20 @@ export default function HomeScreen({ navigation, route }) {
             },
           },
         }}
+        onSwipedLeft={(cardindex) => {
+          db.collection("swipeleft").add({
+            email: email,
+            name: name,
+          });
+        }}
+        onSwipedBottom={(cardindex) => {
+          Alert.alert("Report this post as Spam or Abusive");
+          db.collection("abusive").add({
+            abusivecard: messages[cardindex],
+            reportedbyemail: email,
+            reportedbyname: name,
+          });
+        }}
         onSwipedRight={(cardindex) => {
           if (messages[cardindex].email == email) {
             Alert.alert(
@@ -125,6 +236,11 @@ export default function HomeScreen({ navigation, route }) {
               [{ text: "OK" }]
             );
           } else {
+            db.collection("swiperight").add({
+              email: email,
+              name: name,
+            });
+
             navigation.navigate("Privatechat", {
               otherUser: messages[cardindex],
               email: email,
@@ -146,14 +262,26 @@ export default function HomeScreen({ navigation, route }) {
           alignContent: "center",
         }}
       >
-        <FormButton
+        <Button
+          mode="outlined"
+          uppercase={false}
+          labelStyle={styless.navButtonText}
+          style={styless.button}
+          contentStyle={styless.buttonContainer}
+          onPress={() => navigation.navigate("Post", { email, name })}
+          theme={{ colors: { primary: "white" } }}
+        >
+          Post
+        </Button>
+
+        {/* <FormButton
           title="Create"
           modevalue="contained"
           labelStyle={styless.buttonLabel}
           onPress={() => navigation.navigate("Post", { email, name })}
           //disabled={post.length === 0}
           uppercase={false}
-        />
+        /> */}
       </View>
     </SafeAreaView>
   );
@@ -176,6 +304,20 @@ const styless = StyleSheet.create({
     fontSize: 22,
     alignSelf: "center",
     alignContent: "center",
+  },
+
+  button: {
+    marginTop: 10,
+    borderColor: "white",
+    color: "#f194ff",
+  },
+  buttonContainer: {
+    width: width / 2,
+    height: height / 15,
+  },
+  navButtonText: {
+    fontSize: 16,
+    color: "white",
   },
 
   // image: {

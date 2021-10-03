@@ -25,13 +25,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   imageContainer: {
+    marginTop: 50,
     width: Layout.window.width - 30,
-    height: Layout.window.height - BOTTOM_BAR_HEIGHT * 10,
-    borderRadius: 20,
+    height: Layout.window.height - BOTTOM_BAR_HEIGHT * 12,
+    borderRadius: 27,
     //overflow: "hidden", // this does magic
   },
   title: {
     position: "absolute",
+    color: "#CE0A0A",
+    fontFamily: "Roboto",
+    fontSize: 23,
+    //backgroundColor: "black",
+
     //left: 10,
     //bottom: 30,
   },

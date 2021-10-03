@@ -90,7 +90,7 @@ export default function Mychats({ navigation, route }) {
   const [data, setData] = useState([]);
 
   function Item({ id, navigation, user }) {
-    console.log("@@userinmychats", user);
+    //console.log("@@userinmychats", user);
     return (
       <View>
         <TouchableOpacity
@@ -158,7 +158,7 @@ export default function Mychats({ navigation, route }) {
   if (loading) {
     return <Loading />;
   }
-  console.log("data", data);
+  //console.log("data", data);
 
   return (
     <View style={styles.container}>
@@ -168,29 +168,32 @@ export default function Mychats({ navigation, route }) {
           <Item id={item.id} navigation={navigation} user={item} />
         )}
         keyExtractor={(item) => item.id}
-        // ListEmptyComponent={() => (
-        //   <View
-        //     style={{
-        //       justifyContent: "center",
-        //       alignItems: "center",
-        //       marginTop: Dimensions.get("window").height * 0.2,
-        //     }}
-        //   >
-        //     <Image
-        //       source={
-        //         require("../assets/Click.png")
-        //         // uri:
-        //         // "https://see.fontimg.com/api/renderfont4/ZVJPZ/eyJyIjoiZnMiLCJoIjoxMTcsInciOjEwMDAsImZzIjoxMTcsImZnYyI6IiMxNjE3MTYiLCJiZ2MiOiIjRkZGOUY5IiwidCI6MX0/bm8gY2hhdHM/attack-graffiti.png",
-        //       }
-        //       style={{
-        //         width: Dimensions.get("window").width * 0.7,
-        //         height: Dimensions.get("window").width * 0.7,
-        //         marginTop: 0,
-        //         //resizeMode: "stretch",
-        //       }}
-        //     />
-        //   </View>
-        // )}
+        ListEmptyComponent={() => (
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: Dimensions.get("window").height * 0.1,
+            }}
+          >
+            <Text style={{ marginBottom: 10 }}>
+              Swipe cards right at Posts page to start chat
+            </Text>
+            <Image
+              source={
+                require("../assets/images/Click.png")
+                // uri:
+                // "https://see.fontimg.com/api/renderfont4/ZVJPZ/eyJyIjoiZnMiLCJoIjoxMTcsInciOjEwMDAsImZzIjoxMTcsImZnYyI6IiMxNjE3MTYiLCJiZ2MiOiIjRkZGOUY5IiwidCI6MX0/bm8gY2hhdHM/attack-graffiti.png",
+              }
+              style={{
+                width: Dimensions.get("window").width * 0.57,
+                height: Dimensions.get("window").width * 0.9,
+                marginTop: 0,
+                resizeMode: "stretch",
+              }}
+            />
+          </View>
+        )}
       />
     </View>
   );
