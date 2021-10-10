@@ -16,6 +16,7 @@ export default function Privatechat({ route, navigation }) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [block, setBlock] = useState("");
+  const [otherblock, setOtherblock] = useState("");
 
   var otheruser = route.params.otherUser.email; //otheremail
   var otherusername = route.params.otherUser.name;
@@ -71,7 +72,17 @@ export default function Privatechat({ route, navigation }) {
 
     .orderBy("createdAt", "desc");
 
-  var docRef = db.collection("PrivateChat").doc(chatID);
+  var docRef = db
+    .collection("PrivateChat")
+    .doc(chatID)
+    .collection(email)
+    .doc(email);
+  var otherdocRef = db
+    .collection("PrivateChat")
+    .doc(chatID)
+    .collection(otheruser)
+    .doc(otheruser);
+
   useEffect(() => {
     docRef
       .get()
@@ -79,7 +90,7 @@ export default function Privatechat({ route, navigation }) {
         if (doc.exists) {
           //console.log("Document data:", doc.data().block);
           setBlock(doc.data().block);
-          console.log("block status in db", { block });
+          //console.log("doc in db", doc);
         } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
@@ -90,6 +101,26 @@ export default function Privatechat({ route, navigation }) {
         console.log("Error getting document:", error);
       });
   }, []);
+
+  useEffect(() => {
+    otherdocRef
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          //console.log("Document data:", doc.data().block);
+          setOtherblock(doc.data().block);
+          //console.log("doc in db", doc);
+        } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      })
+
+      .catch((error) => {
+        console.log("Error getting document:", error);
+      });
+  }, []);
+
   async function sendPushNotification() {
     //console.log("@@inside push noti");
     const message = data;
@@ -108,7 +139,7 @@ export default function Privatechat({ route, navigation }) {
   function handleSend(newMessages) {
     const text = newMessages[0].text;
     console.log("block in handlesend", block);
-    if (block == "true") {
+    if (block == "true" || otherblock == "true") {
       alert("The Chat is blocked by the other user or you");
     } else {
       db.collection("PrivateChat").doc(chatID).collection("Messages").add({
@@ -166,9 +197,13 @@ export default function Privatechat({ route, navigation }) {
                 {
                   text: "Un block",
                   onPress: () => {
-                    db.collection("PrivateChat").doc(chatID).set({
-                      block: "false",
-                    });
+                    db.collection("PrivateChat")
+                      .doc(chatID)
+                      .collection(email)
+                      .doc(email)
+                      .set({
+                        block: "false",
+                      });
 
                     setBlock("false");
                   },
@@ -186,9 +221,13 @@ export default function Privatechat({ route, navigation }) {
                   {
                     text: "Block",
                     onPress: () => {
-                      db.collection("PrivateChat").doc(chatID).set({
-                        block: "true",
-                      });
+                      db.collection("PrivateChat")
+                        .doc(chatID)
+                        .collection(email)
+                        .doc(email)
+                        .set({
+                          block: "true",
+                        });
                       setBlock("true");
                     },
                   },
@@ -210,7 +249,7 @@ export default function Privatechat({ route, navigation }) {
       messages={messages}
       onSend={handleSend}
       user={{ _id: email, name: name }}
-      minComposerHeight={56.7}
+      minComposerHeight={52.7}
       alignTop={true}
       //isTyping={true}
       renderUsernameOnMessage={true}
