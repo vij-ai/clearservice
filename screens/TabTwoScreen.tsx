@@ -36,8 +36,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 // };
 
 export default function Mychats({ navigation, route }) {
-  const email = route.params.route.params.email;
-  const name = route.params.route.params.name;
+  var email = route.params.route.params.email;
+  var name = route.params.route.params.name;
 
   //getData();
 

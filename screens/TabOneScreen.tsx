@@ -37,8 +37,8 @@ Notifications.setNotificationHandler({
 export default function HomeScreen({ navigation, route }) {
   //var filPics = HomeScreenPics;
 
-  const email = route.params.route.params.email;
-  const name = route.params.route.params.name;
+  var email = route.params.route.params.email;
+  var name = route.params.route.params.name;
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation, route }) {
   }, []);
 
   async function registerForPushNotificationsAsync() {
-    console.log("inside registerforpush");
+    //console.log("inside registerforpush");
     let token;
     if (Constants.isDevice) {
       //console.log("inside constants");
@@ -127,7 +127,7 @@ export default function HomeScreen({ navigation, route }) {
       //     },
       //     { merge: true }
       //   );
-      console.log("token", token);
+      //console.log("token", token);
     } else {
       alert("Must use physical device for Push Notifications");
     }
@@ -180,7 +180,6 @@ export default function HomeScreen({ navigation, route }) {
     <SafeAreaView style={styless.container}>
       <Swiper
         animateCardOpacity={true}
-        
         cards={messages}
         renderCard={Card}
         infinite

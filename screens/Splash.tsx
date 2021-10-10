@@ -9,7 +9,7 @@ const getData = async (navigation) => {
     email = await AsyncStorage.getItem("userEmail");
     name = await AsyncStorage.getItem("userName");
     if (email !== null) {
-      console.log("##emailworking in splash", email, name);
+      //console.log("##emailworking in splash", email, name);
       //navigation.navigate("Atlantis", { email, name });
       navigation.navigate(
         "Root",

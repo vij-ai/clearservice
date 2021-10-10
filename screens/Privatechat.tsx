@@ -1,47 +1,27 @@
 import React, { useState, useEffect } from "react";
-import Image, { View } from "react-native";
+import { View, Alert } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
+//import Alert from "react-native";
 
 import * as firebase from "firebase";
 import "firebase/firestore";
 import Loading from "../components/Loading";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
-import { AsyncStorage } from "react-native";
-import { List } from "react-native-paper";
 
-// var email = "null";
-// var name = "null";
-
-// const getData = async () => {
-//   try {
-//     email = await AsyncStorage.getItem("userEmail");
-//     name = await AsyncStorage.getItem("userName");
-//     if (email != null) {
-//       console.log("##emailworking in privchat", name);
-//     } else {
-//       email = "error";
-//       console.log("##email not working in chats", email);
-//     }
-//   } catch (e) {
-//     //return isLoggedIn;
-//     // error reading value
-//   }
-// };
+import { List, IconButton, Colors } from "react-native-paper";
+import { FloatingAction } from "react-native-floating-action";
 
 export default function Privatechat({ route, navigation }) {
-  // useEffect(() => {
-  //   getData();
-  //   //console.log("##useeffect", isLoggedIn);
-  // }, []);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [block, setBlock] = useState("");
 
-  const otheruser = route.params.otherUser.email; //otheremail
-  const otherusername = route.params.otherUser.name;
+  var otheruser = route.params.otherUser.email; //otheremail
+  var otherusername = route.params.otherUser.name;
   //console.log("!!user", route);
-  const email = route.params.email; //useremail
-  const name = route.params.name; // user name
+  var email = route.params.email; //useremail
+  var name = route.params.name; // user name
 
   //console.log("!!email", email);
 
@@ -58,40 +38,6 @@ export default function Privatechat({ route, navigation }) {
     list.push(doc.data());
     setData(list);
   });
-  console.log("otheruserpush", data);
-  // useEffect(() => {
-  //   return tokenlist.onSnapshot((querySnapshot) => {
-  //     const list = [];
-  //     //let deviceToken = expoPushToken;
-  //     //console.log("@@devicetoken", deviceToken);
-
-  //     querySnapshot.forEach((doc) => {
-  //       const expopush = doc.data();
-  //       //const dbToken = expopush.to;
-  //       // if (dbToken == deviceToken) {
-  //       //   console.log("@@if");
-  //       // } else {
-  //       list.push(expopush);
-  //       console.log("@@expopushinprivatechat", expopush);
-  //       //}
-  //     });
-
-  //     setData(list);
-  //     console.log("@@list", list);
-
-  //     /**
-  //      * unsubscribe listener
-  //      */
-  //   });
-  // }, []);
-
-  // var user = firebase.auth().currentUser;
-  // var name, email;
-
-  // if (user != null) {
-  //   name = user.displayName;
-  //   email = user.email;
-  // }
 
   const otheruserID = otheruser;
   const chateeID = email;
@@ -125,8 +71,27 @@ export default function Privatechat({ route, navigation }) {
 
     .orderBy("createdAt", "desc");
 
+  var docRef = db.collection("PrivateChat").doc(chatID);
+  useEffect(() => {
+    docRef
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          //console.log("Document data:", doc.data().block);
+          setBlock(doc.data().block);
+          console.log("block status in db", { block });
+        } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      })
+
+      .catch((error) => {
+        console.log("Error getting document:", error);
+      });
+  }, []);
   async function sendPushNotification() {
-    console.log("@@inside push noti");
+    //console.log("@@inside push noti");
     const message = data;
 
     await fetch("https://exp.host/--/api/v2/push/send", {
@@ -142,18 +107,22 @@ export default function Privatechat({ route, navigation }) {
 
   function handleSend(newMessages) {
     const text = newMessages[0].text;
+    console.log("block in handlesend", block);
+    if (block == "true") {
+      alert("The Chat is blocked by the other user or you");
+    } else {
+      db.collection("PrivateChat").doc(chatID).collection("Messages").add({
+        text,
+        createdAt: new Date().getTime(),
+        user: email,
+        name: name,
+        url: "",
 
-    db.collection("PrivateChat").doc(chatID).collection("Messages").add({
-      text,
-      createdAt: new Date().getTime(),
-      user: email,
-      name: name,
-      url: "",
+        // _id: userid,
+      });
 
-      // _id: userid,
-    });
-
-    sendPushNotification();
+      sendPushNotification();
+    }
   }
 
   useEffect(() => {
@@ -184,19 +153,71 @@ export default function Privatechat({ route, navigation }) {
     return <Loading />;
   }
 
+  function getblock() {
+    return (
+      <View>
+        <IconButton
+          icon="account-cancel"
+          color={Colors.red500}
+          size={20}
+          onPress={() => {
+            if (block == "true") {
+              Alert.alert("Unblock the other user", "Sure?", [
+                {
+                  text: "Un block",
+                  onPress: () => {
+                    db.collection("PrivateChat").doc(chatID).set({
+                      block: "false",
+                    });
+
+                    setBlock("false");
+                  },
+                },
+
+                {
+                  text: "Cancel",
+                },
+              ]);
+            } else {
+              Alert.alert(
+                "Block the other user?",
+                "He/She wont be able to send messages unless you unblock",
+                [
+                  {
+                    text: "Block",
+                    onPress: () => {
+                      db.collection("PrivateChat").doc(chatID).set({
+                        block: "true",
+                      });
+                      setBlock("true");
+                    },
+                  },
+
+                  {
+                    text: "Cancel",
+                  },
+                ]
+              );
+            }
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
     <GiftedChat
       messages={messages}
       onSend={handleSend}
       user={{ _id: email, name: name }}
-      minComposerHeight={46.7}
+      minComposerHeight={56.7}
       alignTop={true}
       //isTyping={true}
       renderUsernameOnMessage={true}
       //scrollToBottom={true}
       keyboardShouldPersistTaps="never"
       //bottomOffset={240}
-      //renderActions={images}
+      renderActions={getblock}
       showAvatarForEveryMessage={true}
       //infiniteScroll={true}
     />

@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput, Button, Title } from "react-native-paper";
+import { TextInput, Button, Title, Checkbox } from "react-native-paper";
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ export default function SignUp({ navigation }) {
   const [Post, setPost] = useState("");
   const [Password, setPassword] = useState("");
   const [userName, setUserName] = useState("");
+  const [checked, setChecked] = useState(false);
 
   const storeLoginData = async (email, userName) => {
     try {
@@ -53,7 +54,7 @@ export default function SignUp({ navigation }) {
         db.collection("Posts").add({
           Post: Post,
           email: email,
-          name: password,
+          name: userName,
           createdAt: new Date().getTime(),
         });
       }
@@ -102,16 +103,29 @@ export default function SignUp({ navigation }) {
           style={styles.input}
           theme={{ colors: { primary: "black" } }}
         />
-        <View style={{ flexDirection: "row", marginTop: 8, marginBottom: 9 }}>
-          <Text> </Text>
-
-          <Text>Via sigining up you accept the </Text>
-          <Text
-            style={{ textDecorationLine: "underline" }}
-            onPress={() => navigation.navigate("Terms")}
-          >
-            Terms and privay policy
-          </Text>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            marginTop: 8,
+            marginBottom: 9,
+          }}
+        >
+          <Checkbox
+            status={checked ? "checked" : "unchecked"}
+            onPress={() => {
+              setChecked(!checked);
+            }}
+          />
+          <View style={{ marginTop: 2 }}>
+            <Text>Accept the </Text>
+            <Text
+              style={{ textDecorationLine: "underline" }}
+              onPress={() => navigation.navigate("Terms")}
+            >
+              Terms and privay policy
+            </Text>
+          </View>
         </View>
 
         <Formbutton
@@ -127,6 +141,12 @@ export default function SignUp({ navigation }) {
             if (Post.length < 10 || Post.length > 180) {
               alert(
                 "Letters in your Post should be greater than 10 and less than 180"
+              );
+            }
+
+            if (checked == false) {
+              alert(
+                "Click the check box to accept the Terms and Privacy policy"
               );
             } else {
               {
