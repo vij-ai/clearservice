@@ -7,7 +7,7 @@ const BOTTOM_BAR_HEIGHT = !Platform.isPad ? 29 : 49; // found from https://stack
 
 export const Card = ({ pic, title, caption }) => (
   <Tile
-    imageSrc={pic}
+    //imageSrc={pic}
     imageContainerStyle={styles.imageContainer}
     activeOpacity={0.9}
     title={title}
@@ -29,7 +29,10 @@ const styles = StyleSheet.create({
     width: Layout.window.width - 30,
     height: Layout.window.height - BOTTOM_BAR_HEIGHT * 12,
     borderRadius: 27,
-    //overflow: "hidden", // this does magic
+    overflow: "hidden", // this does magic
+    backgroundColor: "white",
+    borderColor: "black",
+    borderWidth: 2,
   },
   title: {
     position: "absolute",

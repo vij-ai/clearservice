@@ -35,7 +35,7 @@ export default function SignUp({ navigation }) {
     }
   };
 
-  const signupUser = async (email, password, userName, Post) => {
+  const signupUser = async (email, password, userName) => {
     try {
       await firebase.auth().createUserWithEmailAndPassword(email, password);
       const user = firebase.auth().currentUser;
@@ -49,14 +49,14 @@ export default function SignUp({ navigation }) {
             alert(error.message, error);
           });
 
-        const db = firebase.firestore();
+        // const db = firebase.firestore();
 
-        db.collection("Posts").add({
-          Post: Post,
-          email: email,
-          name: userName,
-          createdAt: new Date().getTime(),
-        });
+        // db.collection("Posts").add({
+        //   Post: Post,
+        //   email: email,
+        //   name: userName,
+        //   createdAt: new Date().getTime(),
+        // });
       }
       storeLoginData(email, userName);
       navigation.navigate("Root", { email: email, name: userName });
@@ -95,14 +95,15 @@ export default function SignUp({ navigation }) {
           onChangeText={(userPassword) => setPassword(userPassword)}
         />
 
-        <TextInput
+        {/* <TextInput
           label="Write what your looking for. This will be your first post"
           value={Post}
           onChangeText={(text) => setPost(text)}
           clearButtonMode="while-editing"
           style={styles.input}
           theme={{ colors: { primary: "black" } }}
-        />
+        /> */}
+
         <View
           style={{
             flex: 1,
@@ -138,19 +139,18 @@ export default function SignUp({ navigation }) {
               alert("Nickname should be atleast 1 character");
             }
 
-            if (Post.length < 10 || Post.length > 180) {
-              alert(
-                "Letters in your Post should be greater than 10 and less than 180"
-              );
-            }
-
-            if (checked == false) {
+            // else if (Post.length < 10 || Post.length > 180) {
+            //   alert(
+            //     "Letters in your Post should be greater than 10 and less than 180"
+            //   );
+            // }
+            else if (checked == false) {
               alert(
                 "Click the check box to accept the Terms and Privacy policy"
               );
             } else {
               {
-                signupUser(Email, Password, userName, Post);
+                signupUser(Email, Password, userName);
               }
             }
           }}

@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation, route }) {
   }, []);
 
   async function registerForPushNotificationsAsync() {
-    //console.log("inside registerforpush");
+    console.log("inside registerforpush");
     let token;
     if (Constants.isDevice) {
       //console.log("inside constants");
@@ -140,7 +140,7 @@ export default function HomeScreen({ navigation, route }) {
         lightColor: "#FF231F7C",
       });
     }
-
+    console.log("token", token);
     return token;
   }
 

@@ -84,6 +84,7 @@ export default function Privatechat({ route, navigation }) {
     .doc(otheruser);
 
   useEffect(() => {
+    let mounted = true;
     docRef
       .get()
       .then((doc) => {
@@ -100,9 +101,15 @@ export default function Privatechat({ route, navigation }) {
       .catch((error) => {
         console.log("Error getting document:", error);
       });
+
+    return function cleanup() {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
     otherdocRef
       .get()
       .then((doc) => {
@@ -119,6 +126,10 @@ export default function Privatechat({ route, navigation }) {
       .catch((error) => {
         console.log("Error getting document:", error);
       });
+
+    return function cleanup() {
+      mounted = false;
+    };
   }, []);
 
   async function sendPushNotification() {
