@@ -36,7 +36,7 @@ import { Title } from "react-native-paper";
 import Terms from "../screens/Terms";
 
 import * as firebase from "firebase";
-
+import { getAnalytics } from "firebase/analytics";
 import "firebase/firestore";
 
 const firebaseConfig = {
@@ -56,6 +56,9 @@ if (!firebase.apps.length) {
 } else {
   firebase.app(); // if already initialized, use that one
 }
+
+const analytics = firebase.analytics;
+console.log("Analytics", firebase);
 
 export default function Navigation({
   colorScheme,

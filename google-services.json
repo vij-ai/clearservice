@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "410932272449",
+    "project_id": "celsius-ec4c4",
+    "storage_bucket": "celsius-ec4c4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410932272449:android:34d160f5edcfaaa21415c0",
+        "android_client_info": {
+          "package_name": "com.connectingdesires.celsius"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "410932272449-e50lsnjkn5jop9r7cnsjohvlq6ssdruf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCU2nxo5rDuBRzVrSVxBRCU7WMyuAuk2fs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "410932272449-e50lsnjkn5jop9r7cnsjohvlq6ssdruf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

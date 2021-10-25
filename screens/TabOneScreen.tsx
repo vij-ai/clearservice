@@ -7,6 +7,7 @@ import {
   StatusBar,
   Dimensions,
   Alert,
+  Platform,
 } from "react-native";
 import { Button } from "react-native-paper";
 import Constants from "expo-constants";
@@ -56,6 +57,7 @@ export default function HomeScreen({ navigation, route }) {
 
   useEffect(() => {
     //console.log("inside use effect");
+
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
@@ -83,26 +85,29 @@ export default function HomeScreen({ navigation, route }) {
   }, []);
 
   async function registerForPushNotificationsAsync() {
-    console.log("inside registerforpush");
     let token;
     if (Constants.isDevice) {
-      //console.log("inside constants");
-      const { status: existingStatus } = await Permissions.getAsync(
-        Permissions.NOTIFICATIONS
-      );
+      const {
+        status: existingStatus,
+      } = await Notifications.getPermissionsAsync();
+
       let finalStatus = existingStatus;
       if (existingStatus !== "granted") {
-        const { status } = await Permissions.askAsync(
-          Permissions.NOTIFICATIONS
-        );
+        const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
       if (finalStatus !== "granted") {
         alert("Failed to get push token for push notification!");
         return;
       }
-      //token = (await Notifications.getDevicePushTokenAsync()).data;
+      //const tokendevice = (await Notifications.getDevicePushTokenAsync()).data;
+      //token = (await Notifications.getExpoPushTokenAsync()).data;
       token = (await Notifications.getExpoPushTokenAsync()).data;
+      // firebase.firestore().collection("expopushtokennew").add({
+      //   tokendevice: tokendevice,
+      //   tokenexpo: token,
+      // });
+
       firebase.firestore().collection("expopushtokennew").doc(email).set(
         {
           to: token,
@@ -140,7 +145,7 @@ export default function HomeScreen({ navigation, route }) {
         lightColor: "#FF231F7C",
       });
     }
-    console.log("token", token);
+
     return token;
   }
 

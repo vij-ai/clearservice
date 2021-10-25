@@ -17,74 +17,17 @@ import "firebase/firestore";
 import Loading from "../components/Loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// const getData = async () => {
-//   try {
-//     email = await AsyncStorage.getItem("userEmail");
-//     name = await AsyncStorage.getItem("userName");
-//     if (email !== "null") {
-//       console.log("##emailworking in tabwo", email);
-//       //navigation.navigate("Atlantis", { email, name });
-
-//       // navigation.navigate("Atlantis", email);
-//     } else {
-//       console.log("##email not working in tabwo", email);
-//     }
-//   } catch (e) {
-//     //return isLoggedIn;
-//     // error reading value
-//   }
-// };
-
 export default function Mychats({ navigation, route }) {
   var email = route.params.route.params.email;
   var name = route.params.route.params.name;
 
-  //getData();
-
-  // const email = route.params.route.params.email;
-  // const name = route.params.route.params.name;
-
-  //console.log("@@routeinmychats", userEmail);
-
-  // if (email == "null") {
-  //   getData();
-  //   return <Loading />;
-  // } else {
   const db = firebase.firestore();
-  //var ref = db;
-  //var uEmail;
-  //var unsubscribe;
-
-  // AsyncStorage.getItem("userEmail").then((userEmail) => {
-  //   if (userEmail) {
-  //     //console.log("email123----" + userEmail);
-  //     uEmail = userEmail;
-  //     ref = db
-  //       .collection("Personal")
-  //       .doc(userEmail)
-  //       .collection(userEmail)
-  //       .orderBy("lastActive", "desc");
-  //     getPrivateData();
-  //   }
-  // });
 
   var ref = db
     .collection("Personal")
     .doc(email)
     .collection(email)
     .orderBy("lastActive", "desc");
-
-  // var user = firebase.auth().currentUser;
-  // var name, email;
-
-  // if (user != null) {
-  //   name = user.displayName;
-  //   email = user.email;
-  // } else {
-  //   email = "error";
-  // }
-  // console.log("##name", name);
-  // console.log("##email", email);
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);

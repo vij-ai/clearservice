@@ -48,21 +48,6 @@ export default function Privatechat({ route, navigation }) {
   chatIDpre.sort();
   const chatID = chatIDpre.join("_");
 
-  db.collection("Personal").doc(email).collection(email).doc(otheruser).set({
-    _id: otheruser,
-    name: otherusername,
-    lastActive: new Date().getTime(),
-  });
-  db.collection("Personal")
-    .doc(otheruser)
-    .collection(otheruser)
-    .doc(email)
-    .set({
-      _id: email,
-      name: name,
-      lastActive: new Date().getTime(),
-    });
-
   const ref = firebase
 
     .firestore()
@@ -149,10 +134,29 @@ export default function Privatechat({ route, navigation }) {
 
   function handleSend(newMessages) {
     const text = newMessages[0].text;
-    console.log("block in handlesend", block);
+    //console.log("block in handlesend", block);
     if (block == "true" || otherblock == "true") {
       alert("The Chat is blocked by the other user or you");
     } else {
+      db.collection("Personal")
+        .doc(email)
+        .collection(email)
+        .doc(otheruser)
+        .set({
+          _id: otheruser,
+          name: otherusername,
+          lastActive: new Date().getTime(),
+        });
+      db.collection("Personal")
+        .doc(otheruser)
+        .collection(otheruser)
+        .doc(email)
+        .set({
+          _id: email,
+          name: name,
+          lastActive: new Date().getTime(),
+        });
+
       db.collection("PrivateChat").doc(chatID).collection("Messages").add({
         text,
         createdAt: new Date().getTime(),
