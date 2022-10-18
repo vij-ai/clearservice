@@ -8,6 +8,7 @@ import {
   Dimensions,
   Alert,
   Platform,
+  BackHandler,
 } from "react-native";
 import { Button } from "react-native-paper";
 import Constants from "expo-constants";
@@ -21,22 +22,40 @@ import { useEffect } from "react";
 import * as Notifications from "expo-notifications";
 import * as Permissions from "expo-permissions";
 
-import * as firebase from "firebase";
+import firebase from "firebase";
 import "firebase/firestore";
 import Loading from "../components/Loading";
 
 const { width, height } = Dimensions.get("screen");
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: false,
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-  }),
-});
+// Notifications.setNotificationHandler({
+//   handleNotification: async () => ({
+//     shouldShowAlert: false,
+//     shouldPlaySound: false,
+//     shouldSetBadge: false,
+//   }),
+// });
 
 export default function HomeScreen({ navigation, route }) {
   //var filPics = HomeScreenPics;
+  const backAction = () => {
+    Alert.alert("Hold on!", "Are you sure you want to exit app?", [
+      {
+        text: "Cancel",
+        onPress: () => null,
+        style: "cancel",
+      },
+      { text: "YES", onPress: () => BackHandler.exitApp() },
+    ]);
+    return true;
+  };
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+  }, []);
 
   var email = route.params.route.params.email;
   var name = route.params.route.params.name;
@@ -55,99 +74,99 @@ export default function HomeScreen({ navigation, route }) {
   const tokenlist = firebase.firestore().collection("expopushtokennew");
   //console.log("tokenlist", tokenlist);
 
-  useEffect(() => {
-    //console.log("inside use effect");
+  // useEffect(() => {
+  //   //console.log("inside use effect");
 
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
+  //   registerForPushNotificationsAsync().then((token) =>
+  //     setExpoPushToken(token)
+  //   );
 
-    // This listener is fired whenever a notification is received while the app is foregrounded
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        Notifications.dismissNotificationAsync(notification.notificationId);
+  //   // This listener is fired whenever a notification is received while the app is foregrounded
+  //   notificationListener.current = Notifications.addNotificationReceivedListener(
+  //     (notification) => {
+  //       Notifications.dismissNotificationAsync(notification.notificationId);
 
-        setNotification(notification);
-      }
-    );
+  //       setNotification(notification);
+  //     }
+  //   );
 
-    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        console.log(response);
-      }
-    );
+  //   // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+  //   responseListener.current = Notifications.addNotificationResponseReceivedListener(
+  //     (response) => {
+  //       console.log(response);
+  //     }
+  //   );
 
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
-    };
-  }, []);
+  //   return () => {
+  //     Notifications.removeNotificationSubscription(notificationListener);
+  //     Notifications.removeNotificationSubscription(responseListener);
+  //   };
+  // }, []);
 
-  async function registerForPushNotificationsAsync() {
-    let token;
-    if (Constants.isDevice) {
-      const {
-        status: existingStatus,
-      } = await Notifications.getPermissionsAsync();
+  // async function registerForPushNotificationsAsync() {
+  //   let token;
+  //   if (Constants.isDevice) {
+  //     const {
+  //       status: existingStatus,
+  //     } = await Notifications.getPermissionsAsync();
 
-      let finalStatus = existingStatus;
-      if (existingStatus !== "granted") {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-      }
-      if (finalStatus !== "granted") {
-        alert("Failed to get push token for push notification!");
-        return;
-      }
-      //const tokendevice = (await Notifications.getDevicePushTokenAsync()).data;
-      //token = (await Notifications.getExpoPushTokenAsync()).data;
-      token = (await Notifications.getExpoPushTokenAsync()).data;
-      // firebase.firestore().collection("expopushtokennew").add({
-      //   tokendevice: tokendevice,
-      //   tokenexpo: token,
-      // });
+  //     let finalStatus = existingStatus;
+  //     if (existingStatus !== "granted") {
+  //       const { status } = await Notifications.requestPermissionsAsync();
+  //       finalStatus = status;
+  //     }
+  //     if (finalStatus !== "granted") {
+  //       alert("Failed to get push token for push notification!");
+  //       return;
+  //     }
+  //     //const tokendevice = (await Notifications.getDevicePushTokenAsync()).data;
+  //     //token = (await Notifications.getExpoPushTokenAsync()).data;
+  //     token = (await Notifications.getExpoPushTokenAsync()).data;
+  //     // firebase.firestore().collection("expopushtokennew").add({
+  //     //   tokendevice: tokendevice,
+  //     //   tokenexpo: token,
+  //     // });
 
-      firebase.firestore().collection("expopushtokennew").doc(email).set(
-        {
-          to: token,
-          //to: data,
-          sound: "default",
-          title: "New message received",
-          // createdAt: new Date().getTime(),
-          // lastActive: new Date().getTime(),
-        },
-        { merge: true }
-      );
+  //     firebase.firestore().collection("expopushtokennew").doc(email).set(
+  //       {
+  //         to: token,
+  //         //to: data,
+  //         sound: "default",
+  //         title: "New message received",
+  //         // createdAt: new Date().getTime(),
+  //         // lastActive: new Date().getTime(),
+  //       },
+  //       { merge: true }
+  //     );
 
-      // db.collection("expopushtoken")
-      //   .doc(token)
-      //   .set(
-      //     {
-      //       latestMessage: {
-      //         text,
-      //         createdAt: new Date().getTime(),
-      //       },
-      //       lastActive: new Date().getTime(),
-      //     },
-      //     { merge: true }
-      //   );
-      //console.log("token", token);
-    } else {
-      alert("Must use physical device for Push Notifications");
-    }
+  //     // db.collection("expopushtoken")
+  //     //   .doc(token)
+  //     //   .set(
+  //     //     {
+  //     //       latestMessage: {
+  //     //         text,
+  //     //         createdAt: new Date().getTime(),
+  //     //       },
+  //     //       lastActive: new Date().getTime(),
+  //     //     },
+  //     //     { merge: true }
+  //     //   );
+  //     //console.log("token", token);
+  //   } else {
+  //     alert("Must use physical device for Push Notifications");
+  //   }
 
-    if (Platform.OS === "android") {
-      Notifications.setNotificationChannelAsync("default", {
-        name: "default",
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: "#FF231F7C",
-      });
-    }
+  //   if (Platform.OS === "android") {
+  //     Notifications.setNotificationChannelAsync("default", {
+  //       name: "default",
+  //       importance: Notifications.AndroidImportance.MAX,
+  //       vibrationPattern: [0, 250, 250, 250],
+  //       lightColor: "#FF231F7C",
+  //     });
+  //   }
 
-    return token;
-  }
+  //   return token;
+  // }
 
   const ref = firebase
     .firestore()
@@ -165,6 +184,8 @@ export default function HomeScreen({ navigation, route }) {
 
           createdAt: ChatMessages.createdAt,
           title: ChatMessages.Post,
+          number: ChatMessages.Number,
+          servicedate: ChatMessages.servicedate,
           email: ChatMessages.email,
           name: ChatMessages.name,
         });
@@ -207,8 +228,8 @@ export default function HomeScreen({ navigation, route }) {
             },
           },
           right: {
-            title: "LIKE",
-            element: <OverlayLabel label="CHAT" color="#00CED1" />,
+            title: "NEXT",
+            element: <OverlayLabel label="NEXT" color="#E5566D" />,
             style: {
               wrapper: {
                 ...styles.overlayWrapper,
@@ -218,40 +239,40 @@ export default function HomeScreen({ navigation, route }) {
             },
           },
         }}
-        onSwipedLeft={(cardindex) => {
-          db.collection("swipeleft").add({
-            email: email,
-            name: name,
-          });
-        }}
-        onSwipedBottom={(cardindex) => {
-          Alert.alert("Report this post as Spam or Abusive");
-          db.collection("abusive").add({
-            abusivecard: messages[cardindex],
-            reportedbyemail: email,
-            reportedbyname: name,
-          });
-        }}
-        onSwipedRight={(cardindex) => {
-          if (messages[cardindex].email == email) {
-            Alert.alert(
-              "That's your own post",
-              "You cannot chat with yourself, duh",
-              [{ text: "OK" }]
-            );
-          } else {
-            db.collection("swiperight").add({
-              email: email,
-              name: name,
-            });
+        // onSwipedLeft={(cardindex) => {
+        //   db.collection("swipeleft").add({
+        //     email: email,
+        //     name: name,
+        //   });
+        // }}
+        // onSwipedBottom={(cardindex) => {
+        //   Alert.alert("Report this post as Spam or Abusive");
+        //   db.collection("abusive").add({
+        //     abusivecard: messages[cardindex],
+        //     reportedbyemail: email,
+        //     reportedbyname: name,
+        //   });
+        // }}
+        // onSwipedRight={(cardindex) => {
+        //   if (messages[cardindex].email == email) {
+        //     Alert.alert(
+        //       "That's your own post",
+        //       "You cannot chat with yourself, duh",
+        //       [{ text: "OK" }]
+        //     );
+        //   } else {
+        //     db.collection("swiperight").add({
+        //       email: email,
+        //       name: name,
+        //     });
 
-            navigation.navigate("Privatechat", {
-              otherUser: messages[cardindex],
-              email: email,
-              name: name,
-            });
-          }
-        }}
+        //     navigation.navigate("Privatechat", {
+        //       otherUser: messages[cardindex],
+        //       email: email,
+        //       name: name,
+        //     });
+        //   }
+        // }}
 
         //console.log("@@swipe right", cardindex)}
       />
@@ -275,7 +296,7 @@ export default function HomeScreen({ navigation, route }) {
           onPress={() => navigation.navigate("Post", { email, name })}
           theme={{ colors: { primary: "white" } }}
         >
-          Post
+          Add New
         </Button>
 
         {/* <FormButton

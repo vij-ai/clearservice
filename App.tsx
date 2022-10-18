@@ -6,7 +6,7 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import Navigation from "./navigation";
 
-LogBox.ignoreLogs(["Setting a timer"]);
+//LogBox.ignoreLogs(["Setting a timer"]);
 
 export default function App() {
   const isLoadingComplete = useCachedResources();

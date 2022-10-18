@@ -1,64 +1,154 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Dimensions } from "react-native";
+import { View, StyleSheet, Dimensions, Button } from "react-native";
 import { IconButton, Title, TextInput } from "react-native-paper";
 import FormInput from "../components/FormInput";
 import FormButton from "../components/FormButton";
 import * as firebase from "firebase";
 import "firebase/firestore";
+//import DatePicker from "react-native-date-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { TouchableOpacity, ScrollView } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("screen");
 
 export default function Post({ navigation, route }) {
   const [Post, setPost] = useState("");
+  const [No, setNo] = useState("");
+  const [serviceDetails, setServiceDetails] = useState("");
+  const [mode, setMode] = useState(new Date());
+  const [show, setShow] = useState(false);
   // ... Firestore query will come here later
 
-  const handleButtonPress = (Post) => {
+  const [date, setDate] = useState(new Date());
+
+  const handleButtonPress = (Post, No, date, dateStamp) => {
     const db = firebase.firestore();
 
-    db.collection("Posts").add({
+    db.collection("Posts").doc(No).set({
       Post: Post,
+      Number: No,
       email: route.params.email,
       name: route.params.name,
+      servicedate: date,
+      servicedatestamp: dateStamp,
       createdAt: new Date().getTime(),
     });
     navigation.goBack();
   };
 
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios");
+    setDate(currentDate);
+  };
+
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
+
+  const showDatepicker = () => {
+    showMode("date");
+  };
+
+  var selectedDateTime = date;
+
+  var stringSelectedDate = selectedDateTime.toDateString();
   return (
     <View style={styles.rootContainer}>
-      <View style={styles.closeButtonContainer}>
-        <IconButton
-          icon="close-circle"
-          size={36}
-          color="#6646ee"
-          onPress={() => navigation.goBack()}
-        />
-      </View>
-      <View style={styles.innerContainer}>
-        <Title style={styles.title}>Create your anonymous post</Title>
-        <TextInput
-          label="Write what u'r looking for.. or any thoughts"
-          value={Post}
-          onChangeText={(text) => setPost(text)}
-          clearButtonMode="while-editing"
-          style={styles.input}
-          theme={{ colors: { primary: "black" } }}
-        />
-        <FormButton
-          title="Post"
-          modevalue="contained"
-          labelStyle={styles.buttonLabel}
-          onPress={() => handleButtonPress(Post)}
-          disabled={Post.length < 10 || Post.length > 180}
-          uppercase={false}
-        />
-      </View>
-      <View>
-        <Title style={styles.notes}>
-          {" "}
-          Min 10 characters, Max 180 characters{" "}
-        </Title>
-      </View>
+      <ScrollView>
+        <View style={styles.closeButtonContainer}>
+          <IconButton
+            icon="close-circle"
+            size={36}
+            color="#6646ee"
+            onPress={() => navigation.goBack()}
+          />
+        </View>
+        <View style={styles.innerContainer}>
+          <Title style={styles.title}>Add new customer</Title>
+          <TextInput
+            label="Enter Customer name"
+            value={Post}
+            onChangeText={(text1) => setPost(text1)}
+            clearButtonMode="while-editing"
+            style={styles.input}
+            theme={{ colors: { primary: "black" } }}
+          />
+          {/* <Title style={styles.title}>Customer number</Title> */}
+          <TextInput
+            label="Enter Customer Mobile no"
+            value={No}
+            keyboardType="numeric"
+            onChangeText={(text2) => setNo(text2)}
+            clearButtonMode="while-editing"
+            style={styles.input}
+            theme={{ colors: { primary: "black" } }}
+          />
+          <TextInput
+            label="Service details"
+            value={serviceDetails}
+            onChangeText={(text3) => setServiceDetails(text3)}
+            clearButtonMode="while-editing"
+            style={styles.input}
+            theme={{ colors: { primary: "black" } }}
+          />
+          <View>
+            <View style={{ marginTop: 10 }}>
+              <Button
+                onPress={showDatepicker}
+                title={
+                  stringSelectedDate +
+                  " " +
+                  //stringSelectedTime +
+                  " - Select service date"
+                }
+              />
+            </View>
+            {/* <Divider style={styles.divider} />
+
+          <View style={{ marginTop: 10 }}>
+            <Button
+              onPress={showTimepicker}
+              title={stringSelectedTime + " - Select new time!"}
+            />
+          </View> */}
+
+            {show && (
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={date}
+                //mode={mode}
+                //is24Hour={true}
+                display="default"
+                onChange={onChange}
+              />
+            )}
+          </View>
+          <FormButton
+            title="Save"
+            modevalue="contained"
+            labelStyle={styles.buttonLabel}
+            onPress={() =>
+              handleButtonPress(Post, No, date.toDateString(), date)
+            }
+            disabled={
+              Post.length < 1 ||
+              Post.length > 180 ||
+              No.length < 10 ||
+              No.length > 12
+            }
+            uppercase={false}
+          />
+        </View>
+        <View>
+          <Title style={styles.notes}>
+            {" "}
+            Min 1 characters for Name{"\n"} Phone number should be 10 to 12
+            characters
+          </Title>
+        </View>
+      </ScrollView>
     </View>
   );
 }

@@ -1,279 +1,181 @@
-import React, { useState, useEffect } from "react";
-import { View, Alert } from "react-native";
-import { GiftedChat } from "react-native-gifted-chat";
-//import Alert from "react-native";
-
+import React, { useState } from "react";
+import { View, StyleSheet, Dimensions, Button } from "react-native";
+import { IconButton, Title, TextInput } from "react-native-paper";
+import FormInput from "../components/FormInput";
+import FormButton from "../components/FormButton";
 import * as firebase from "firebase";
 import "firebase/firestore";
-import Loading from "../components/Loading";
-import * as Notifications from "expo-notifications";
-import * as Permissions from "expo-permissions";
+//import DatePicker from "react-native-date-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
-import { List, IconButton, Colors } from "react-native-paper";
-import { FloatingAction } from "react-native-floating-action";
+const { width, height } = Dimensions.get("screen");
 
-export default function Privatechat({ route, navigation }) {
-  const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [block, setBlock] = useState("");
-  const [otherblock, setOtherblock] = useState("");
+export default function Privatechat({ navigation, route, name, no }) {
+  const [Post, setPost] = useState(route.params.name);
+  const [No, setNo] = useState(route.params.no);
+  const [mode, setMode] = useState(new Date());
+  const [show, setShow] = useState(false);
+  // ... Firestore query will come here later
+  console.log(route.params.route.params.route.params.email);
+  const [date, setDate] = useState(new Date());
 
-  var otheruser = route.params.otherUser.email; //otheremail
-  var otherusername = route.params.otherUser.name;
-  //console.log("!!user", route);
-  var email = route.params.email; //useremail
-  var name = route.params.name; // user name
+  const handleButtonPress = (Post, No, date, dateStamp) => {
+    const db = firebase.firestore();
+    console.log(Post, No);
 
-  //console.log("!!email", email);
-
-  const db = firebase.firestore();
-
-  const tokenlist = firebase
-    .firestore()
-    .collection("expopushtokennew")
-    .doc(otheruser);
-  const [data, setData] = useState([]);
-
-  tokenlist.get().then((doc) => {
-    const list = [];
-    list.push(doc.data());
-    setData(list);
-  });
-
-  const otheruserID = otheruser;
-  const chateeID = email;
-  const chatIDpre = [];
-  chatIDpre.push(otheruserID);
-  chatIDpre.push(chateeID);
-  chatIDpre.sort();
-  const chatID = chatIDpre.join("_");
-
-  const ref = firebase
-
-    .firestore()
-    .collection("PrivateChat")
-    .doc(chatID)
-    .collection("Messages")
-
-    .orderBy("createdAt", "desc");
-
-  var docRef = db
-    .collection("PrivateChat")
-    .doc(chatID)
-    .collection(email)
-    .doc(email);
-  var otherdocRef = db
-    .collection("PrivateChat")
-    .doc(chatID)
-    .collection(otheruser)
-    .doc(otheruser);
-
-  useEffect(() => {
-    let mounted = true;
-    docRef
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          //console.log("Document data:", doc.data().block);
-          setBlock(doc.data().block);
-          //console.log("doc in db", doc);
-        } else {
-          // doc.data() will be undefined in this case
-          console.log("No such document!");
-        }
-      })
-
-      .catch((error) => {
-        console.log("Error getting document:", error);
-      });
-
-    return function cleanup() {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    otherdocRef
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          //console.log("Document data:", doc.data().block);
-          setOtherblock(doc.data().block);
-          //console.log("doc in db", doc);
-        } else {
-          // doc.data() will be undefined in this case
-          console.log("No such document!");
-        }
-      })
-
-      .catch((error) => {
-        console.log("Error getting document:", error);
-      });
-
-    return function cleanup() {
-      mounted = false;
-    };
-  }, []);
-
-  async function sendPushNotification() {
-    //console.log("@@inside push noti");
-    const message = data;
-
-    await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(message),
+    db.collection("Posts").doc(No).set({
+      Post: Post,
+      Number: No,
+      email: route.params.route.params.route.params.email,
+      name: route.params.route.params.route.params.name,
+      servicedate: date,
+      servicedatestamp: dateStamp,
+      createdAt: new Date().getTime(),
     });
-  }
+    navigation.goBack();
+  };
 
-  function handleSend(newMessages) {
-    const text = newMessages[0].text;
-    //console.log("block in handlesend", block);
-    if (block == "true" || otherblock == "true") {
-      alert("The Chat is blocked by the other user or you");
-    } else {
-      db.collection("Personal")
-        .doc(email)
-        .collection(email)
-        .doc(otheruser)
-        .set({
-          _id: otheruser,
-          name: otherusername,
-          lastActive: new Date().getTime(),
-        });
-      db.collection("Personal")
-        .doc(otheruser)
-        .collection(otheruser)
-        .doc(email)
-        .set({
-          _id: email,
-          name: name,
-          lastActive: new Date().getTime(),
-        });
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === "ios");
+    setDate(currentDate);
+  };
 
-      db.collection("PrivateChat").doc(chatID).collection("Messages").add({
-        text,
-        createdAt: new Date().getTime(),
-        user: email,
-        name: name,
-        url: "",
+  const showMode = (currentMode) => {
+    setShow(true);
+    setMode(currentMode);
+  };
 
-        // _id: userid,
-      });
+  const showDatepicker = () => {
+    showMode("date");
+  };
 
-      sendPushNotification();
-    }
-  }
+  var selectedDateTime = date;
 
-  useEffect(() => {
-    return ref.onSnapshot((querySnapshot) => {
-      const list = [];
-      querySnapshot.forEach((doc) => {
-        const ChatMessages = doc.data();
-        list.push({
-          _id: doc.id,
-          text: ChatMessages.text,
-          createdAt: ChatMessages.createdAt,
-          //_id: ChatMessages.from,
-          user: {
-            _id: ChatMessages.user,
-            name: ChatMessages.name,
-          },
-          image: ChatMessages.url,
-        });
-      });
-      setMessages(list);
-
-      if (loading) {
-        setLoading(false);
-      }
-    });
-  }, []);
-  if (loading) {
-    return <Loading />;
-  }
-
-  function getblock() {
-    return (
-      <View>
+  var stringSelectedDate = selectedDateTime.toDateString();
+  return (
+    <View style={styles.rootContainer}>
+      <View style={styles.closeButtonContainer}>
         <IconButton
-          icon="account-cancel"
-          color={Colors.red500}
-          size={20}
-          onPress={() => {
-            if (block == "true") {
-              Alert.alert("Unblock the other user", "Sure?", [
-                {
-                  text: "Un block",
-                  onPress: () => {
-                    db.collection("PrivateChat")
-                      .doc(chatID)
-                      .collection(email)
-                      .doc(email)
-                      .set({
-                        block: "false",
-                      });
-
-                    setBlock("false");
-                  },
-                },
-
-                {
-                  text: "Cancel",
-                },
-              ]);
-            } else {
-              Alert.alert(
-                "Block the other user?",
-                "He/She wont be able to send messages unless you unblock",
-                [
-                  {
-                    text: "Block",
-                    onPress: () => {
-                      db.collection("PrivateChat")
-                        .doc(chatID)
-                        .collection(email)
-                        .doc(email)
-                        .set({
-                          block: "true",
-                        });
-                      setBlock("true");
-                    },
-                  },
-
-                  {
-                    text: "Cancel",
-                  },
-                ]
-              );
-            }
-          }}
+          icon="close-circle"
+          size={36}
+          color="#6646ee"
+          onPress={() => navigation.goBack()}
         />
       </View>
-    );
-  }
+      <View style={styles.innerContainer}>
+        <Title style={styles.title}>Update Service date</Title>
+        <TextInput
+          label="Enter Customer name"
+          value={Post}
+          onChangeText={(text) => setPost(text)}
+          clearButtonMode="while-editing"
+          style={styles.input}
+          theme={{ colors: { primary: "black" } }}
+        />
+        {/* <Title style={styles.title}>Customer number</Title> */}
+        <TextInput
+          label="Enter Customer Mobile no"
+          value={No}
+          keyboardType="numeric"
+          onChangeText={(text) => setNo(text)}
+          clearButtonMode="while-editing"
+          style={styles.input}
+          theme={{ colors: { primary: "black" } }}
+        />
+        <View>
+          <View style={{ marginTop: 10 }}>
+            <Button
+              onPress={showDatepicker}
+              title={
+                stringSelectedDate +
+                " " +
+                //stringSelectedTime +
+                " - Select service date"
+              }
+            />
+          </View>
+          {/* <Divider style={styles.divider} />
 
-  return (
-    <GiftedChat
-      messages={messages}
-      onSend={handleSend}
-      user={{ _id: email, name: name }}
-      minComposerHeight={52.7}
-      alignTop={true}
-      //isTyping={true}
-      renderUsernameOnMessage={true}
-      //scrollToBottom={true}
-      keyboardShouldPersistTaps="never"
-      //bottomOffset={240}
-      renderActions={getblock}
-      showAvatarForEveryMessage={true}
-      //infiniteScroll={true}
-    />
+          <View style={{ marginTop: 10 }}>
+            <Button
+              onPress={showTimepicker}
+              title={stringSelectedTime + " - Select new time!"}
+            />
+          </View> */}
+
+          {show && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              //mode={mode}
+              //is24Hour={true}
+              display="default"
+              onChange={onChange}
+            />
+          )}
+        </View>
+        <FormButton
+          title="Save"
+          modevalue="contained"
+          labelStyle={styles.buttonLabel}
+          onPress={() => handleButtonPress(Post, No, date.toDateString(), date)}
+          disabled={
+            Post.length < 1 ||
+            Post.length > 180 ||
+            No.length < 10 ||
+            No.length > 12
+          }
+          uppercase={false}
+        />
+      </View>
+      {/* <View>
+        <Title style={styles.notes}>
+          {" "}
+          Min 1 characters for Name{"\n"} Phone number should be 10 to 12
+          characters
+        </Title>
+      </View> */}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1,
+  },
+  closeButtonContainer: {
+    position: "absolute",
+    top: 30,
+    right: 0,
+    zIndex: 1,
+  },
+  innerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  input: {
+    marginTop: 10,
+    marginBottom: 10,
+    width: width / 1.1,
+    height: height / 8,
+    //ontSize: 12,
+
+    //color: "black",
+  },
+  title: {
+    fontSize: 24,
+    marginBottom: 10,
+  },
+  notes: {
+    alignSelf: "center",
+    fontSize: 16,
+    marginBottom: 50,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  buttonLabel: {
+    fontSize: 22,
+  },
+});

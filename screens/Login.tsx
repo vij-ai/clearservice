@@ -1,5 +1,5 @@
 import React from "react";
-import { TextInput, Button, Title } from "react-native-paper";
+import { TextInput, Button, Title, Checkbox } from "react-native-paper";
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   Image,
   Dimensions,
   StatusBar,
+  BackHandler,
+  Alert,
 } from "react-native";
 import Forminput from "../components/FormInput";
 import { useState, useEffect } from "react";
@@ -16,42 +18,81 @@ import WavyHeader from "../components/WavyHeader";
 //import Loading from "../components/Loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import * as firebase from "firebase";
-
+import firebase from "firebase";
+//import * as Analytics from "expo-firebase-analytics";
 import "firebase/firestore";
+//import analytics from "@react-native-firebase/analytics";
 
 //firebase.initializeApp(firebaseConfig);
 
 const { width, height } = Dimensions.get("screen");
 
 export default function Login({ navigation }) {
+  const backAction = () => {
+    Alert.alert("Hold on!", "Are you sure you want to exit app?", [
+      {
+        text: "Cancel",
+        onPress: () => null,
+        style: "cancel",
+      },
+      { text: "YES", onPress: () => BackHandler.exitApp() },
+    ]);
+    return true;
+  };
+
+  useEffect(() => {
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+  }, []);
+
   const [Email, setEmail] = useState("");
+  const [Post, setPost] = useState("");
   const [Password, setPassword] = useState("");
+  const [userName, setUserName] = useState("");
+  const [checked, setChecked] = useState(false);
 
   const storeLoginData = async (email, userName) => {
     try {
       await AsyncStorage.setItem("userEmail", email);
       await AsyncStorage.setItem("userName", userName);
-
-      //console.log("##asy username", userName);
-      // console.log("##async email", email);
+      //console.log("## signup asy username", userName);
+      //console.log("## signup  async email", email);
     } catch (e) {
       // saving error
     }
   };
 
-  const loginUser = async (email, password) => {
+  const signupUser = async (email, password, userName) => {
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
-
-      var user = firebase.auth().currentUser;
-      var name;
-
+      await firebase.auth().createUserWithEmailAndPassword(email, password);
+      const user = firebase.auth().currentUser;
       if (user != null) {
-        name = user.displayName;
+        user
+          .updateProfile({
+            displayName: userName,
+          })
+          .then(function () {})
+          .catch(function (error) {
+            alert(error.message);
+          });
+
+        // const db = firebase.firestore();
+
+        // db.collection("Posts").add({
+        //   Post: Post,
+        //   email: email,
+        //   name: userName,
+        //   createdAt: new Date().getTime(),
+        // });
       }
-      storeLoginData(email, name);
-      navigation.navigate("Root", { email, name });
+      storeLoginData(email, userName);
+      // await analytics().logEvent("sign_up", {
+      //   username: userName,
+      //   email: email,
+      // });
+      navigation.navigate("Root", { email: email, name: userName });
     } catch (error) {
       alert(error.message, error);
     }
@@ -79,11 +120,11 @@ export default function Login({ navigation }) {
           <Image
             source={{
               uri:
-                "https://see.fontimg.com/api/renderfont4/d0q6/eyJyIjoiZnMiLCJoIjoyMDAsInciOjEwMDAsImZzIjoyMDAsImZnYyI6IiNGRkZGRkYiLCJiZ2MiOiIjQzMwODA4IiwidCI6MX0/Q2Vsc2l1cw/i-love-what-you-do.png",
+                "https://see.fontimg.com/api/renderfont4/qV71/eyJyIjoiZnMiLCJoIjo0NCwidyI6MTAwMCwiZnMiOjQ0LCJmZ2MiOiIjRkZGRkZGIiwiYmdjIjoiI0ZGRkZGRiIsInQiOjF9/Q2xlYXIgU2VydmljZQ/speedeasy.png",
             }}
             style={{
               width: 200,
-              height: 80,
+              height: 60,
               //marginHorizontal: 15,
               resizeMode: "stretch",
             }}
@@ -91,9 +132,16 @@ export default function Login({ navigation }) {
         </View>
       </View>
       <View style={styles.container}>
-        <Title style={styles.titleText}>
-          Anonymously{"\n"}connecting desires
-        </Title>
+        <Title style={styles.description}>Service reminder app</Title>
+        {/* <Title style={styles.description}>Swipe right to start chat</Title> */}
+
+        <Forminput
+          labelname="Nick name"
+          value={userName}
+          autoCapitalize="none"
+          onChangeText={(userName) => setUserName(userName)}
+        />
+
         <Forminput
           labelname="Email"
           value={Email}
@@ -106,14 +154,67 @@ export default function Login({ navigation }) {
           secureTextEntry={true}
           onChangeText={(userPassword) => setPassword(userPassword)}
         />
+
+        {/* <TextInput
+          label="Write what your looking for. This will be your first post"
+          value={Post}
+          onChangeText={(text) => setPost(text)}
+          clearButtonMode="while-editing"
+          style={styles.input}
+          theme={{ colors: { primary: "black" } }}
+        /> */}
+
+        <View
+          style={{
+            //flex: 3,
+            flexDirection: "row",
+            marginTop: 8,
+            marginBottom: 9,
+          }}
+        >
+          <Checkbox
+            status={checked ? "checked" : "unchecked"}
+            onPress={() => {
+              setChecked(!checked);
+            }}
+          />
+          <View style={{ marginTop: 2 }}>
+            <Text>Accept the </Text>
+            {/* <Text
+              style={{ textDecorationLine: "underline" }}
+              onPress={() => navigation.navigate("Terms")}
+            >
+              Terms and privay policy
+            </Text> */}
+          </View>
+        </View>
+
         <Formbutton
-          title="Log in"
+          title="Sign up"
           modevalue="contained"
           uppercase={false}
-          labelStyle={styles.loginButtonLabel}
-          onPress={() => loginUser(Email, Password)}
-        />
+          labelStyle={styles.navButtonText}
+          onPress={() => {
+            if (userName.length == 0) {
+              alert("Nickname should be atleast 1 character");
+            }
 
+            // else if (Post.length < 10 || Post.length > 180) {
+            //   alert(
+            //     "Letters in your Post should be greater than 10 and less than 180"
+            //   );
+            // }
+            else if (checked == false) {
+              alert(
+                "Click the check box to accept the Terms and Privacy policy"
+              );
+            } else {
+              {
+                signupUser(Email, Password, userName);
+              }
+            }
+          }}
+        />
         <Button
           mode="text"
           uppercase={false}
@@ -123,7 +224,7 @@ export default function Login({ navigation }) {
           onPress={() => navigation.navigate("SignUp")}
           theme={{ colors: { primary: "black" } }}
         >
-          Sign up
+          Log in
         </Button>
       </View>
     </View>
@@ -153,7 +254,7 @@ const styles = StyleSheet.create({
   },
   navButtonText: {
     fontSize: 16,
-    color: "black",
+    //color: "black",
   },
   headerContainer: {
     marginTop: Dimensions.get("window").height * 0.1,
@@ -168,12 +269,17 @@ const styles = StyleSheet.create({
   },
 
   button: {
-    marginTop: 10,
+    marginTop: 4,
 
     //color: "#f194ff",
   },
   buttonContainer: {
     width: width / 2,
     height: height / 15,
+  },
+  description: {
+    fontSize: 18,
+    marginBottom: 5,
+    textAlign: "center",
   },
 });

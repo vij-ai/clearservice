@@ -33,20 +33,20 @@ import Privatechat from "../screens/Privatechat";
 import Post from "../screens/Post";
 import Logout from "../screens/Logout";
 import { Title } from "react-native-paper";
-import Terms from "../screens/Terms";
+//import Terms from "../screens/Terms";
 
-import * as firebase from "firebase";
-import { getAnalytics } from "firebase/analytics";
+import firebase from "firebase";
+
 import "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDkp_t4Y1Qrn2pavmWvUaHazsln4O7m360",
-  authDomain: "yenn-761d1.firebaseapp.com",
-  projectId: "yenn-761d1",
-  storageBucket: "yenn-761d1.appspot.com",
-  messagingSenderId: "140915950891",
-  appId: "1:140915950891:web:63796dfc430d35cd55316e",
-  measurementId: "G-FQ6DFP1929",
+  apiKey: "AIzaSyAzFUlLQGEbaC2Vl4H0tguUUnYL8_-XQMQ",
+  authDomain: "clearservice-3d28e.firebaseapp.com",
+  projectId: "clearservice-3d28e",
+  storageBucket: "clearservice-3d28e.appspot.com",
+  messagingSenderId: "52776962815",
+  appId: "1:52776962815:web:85dab7f25c8cf24bc25aca",
+  measurementId: "G-RC59QGFG0P",
 };
 
 //firebase.initializeApp(firebaseConfig);
@@ -57,8 +57,8 @@ if (!firebase.apps.length) {
   firebase.app(); // if already initialized, use that one
 }
 
-const analytics = firebase.analytics;
-console.log("Analytics", firebase);
+//const analytics = firebase.analytics;
+//console.log("Analytics", firebase);
 
 export default function Navigation({
   colorScheme,
@@ -98,7 +98,7 @@ function RootNavigator() {
       <Stack.Screen
         name="SignUp"
         component={SignUp}
-        options={{ headerShown: true, headerTitle: "Sign up" }}
+        options={{ headerShown: true, headerTitle: "Log in" }}
       />
       <Stack.Screen
         name="Root"
@@ -108,9 +108,10 @@ function RootNavigator() {
       <Stack.Screen
         name="Privatechat"
         component={Privatechat}
-        options={({ navigation, route }) => ({
-          title: route.params.otherUser.name,
-        })}
+        // options={({ navigation, route }) => ({
+        //   //title: route.params.otherUser.name,
+        // })}
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="Post"
@@ -127,11 +128,11 @@ function RootNavigator() {
         component={Logout}
         options={{ title: "Info/Logout" }}
       />
-      <Stack.Screen
+      {/* <Stack.Screen
         name="Terms"
         component={Terms}
         options={{ title: "Terms" }}
-      />
+      /> */}
       <Stack.Group screenOptions={{ presentation: "modal" }}>
         <Stack.Screen name="Modal" component={ModalScreen} />
       </Stack.Group>
@@ -151,11 +152,11 @@ function Logo() {
       <Image
         source={{
           uri:
-            "https://see.fontimg.com/api/renderfont4/d0q6/eyJyIjoiZnMiLCJoIjoyMDAsInciOjEwMDAsImZzIjoyMDAsImZnYyI6IiNDRTBBMEEiLCJiZ2MiOiIjQzMwODA4IiwidCI6MX0/Q2Vsc2l1cw/i-love-what-you-do.png",
+            "https://see.fontimg.com/api/renderfont4/qV71/eyJyIjoiZnMiLCJoIjoyOSwidyI6MTAwMCwiZnMiOjI5LCJmZ2MiOiIjRDIxMzEzIiwiYmdjIjoiI0ZGRkZGRiIsInQiOjF9/Q2xlYXIgU2VydmljZQ/speedeasy.png",
         }}
         style={{
-          width: 100,
-          height: 40,
+          width: 90,
+          height: 30,
           //marginLeft: 2,
           resizeMode: "stretch",
           //borderWidth: 0,
@@ -203,7 +204,7 @@ function BottomTabNavigator(route) {
             //shadowOpacity: 10,
             //height: 120,
           },
-          title: "Posts",
+          title: "Customers",
           // headerTintColor: "yellow",
           // headerBackgroundContainerStyle: { backgroundColor: "black" },
           //headerLeftLabelVisible: false,
@@ -223,9 +224,7 @@ function BottomTabNavigator(route) {
           //   }}
           // />;
           // },
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="fire-extinguisher" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
           headerRight: () => (
             <Pressable
               onPress={() => navigation.navigate("Logout")}
@@ -250,7 +249,7 @@ function BottomTabNavigator(route) {
         component={TabTwoScreen}
         initialParams={route}
         options={{
-          title: "Chats",
+          title: "Reminders",
 
           headerTitleStyle: { fontWeight: "bold" },
           tabBarIcon: ({ color }) => <TabBarIcon name="send" color={color} />,

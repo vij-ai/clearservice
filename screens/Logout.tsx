@@ -45,9 +45,9 @@ export default class Logout extends Component {
           {" "}
           Celsius is connecting people anonymously{" "}
         </Title> */}
-        <Title style={{ fontSize: 30 }}> On the Posts page </Title>
+        {/* <Title style={{ fontSize: 30 }}> On the Posts page </Title>
         <Title> Swipe left to move to next card </Title>
-        <Title> Swipe right to begin chat </Title>
+        <Title> Swipe right to begin chat </Title> */}
         {/* <Title> Click create to create your post </Title> */}
         {/* <Title
           style={{
@@ -58,9 +58,9 @@ export default class Logout extends Component {
         >
           Click Create to create your anonymous post
         </Title> */}
-        <Title style={{ fontSize: 30, marginTop: 40 }}> On Chats page </Title>
+        {/* <Title style={{ fontSize: 30, marginTop: 40 }}> On Chats page </Title>
         <Title> View your chats with users </Title>
-        <Title> Click username to chat </Title>
+        <Title> Click username to chat </Title> */}
 
         <View style={{ marginTop: 120 }}></View>
         <Menu

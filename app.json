@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "celsius",
-    "slug": "celsius",
-    "version": "1.0.6",
+    "name": "ClearService",
+    "slug": "ClearService",
+    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -12,6 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -20,19 +21,19 @@
       "supportsTablet": true
     },
     "android": {
-      "versionCode": 6,
+      "versionCode": 1,
       "permissions": ["NOTIFICATIONS"],
       "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.connectingdesires.celsius",
-      "useNextNotificationsApi": true,
-      "googleServicesFile": "./google-services.json"
+      "package": "com.twowheeler.clearservice",
+      "useNextNotificationsApi": true
     },
     "web": {
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "config": {}
     }
   }
 }

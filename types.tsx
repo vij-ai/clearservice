@@ -26,7 +26,7 @@ export type RootStackParamList = {
   Privatechat: undefined;
   Post: undefined;
   Logout: undefined;
-  Terms: undefined;
+  //Terms: undefined;
 };
 
 export type RootStackScreenProps<

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 // var email = "null";
 // var name = "null";
-import * as firebase from "firebase";
+import firebase from "firebase";
 import { useEffect, useState } from "react";
 import "firebase/firestore";
 import Loading from "../components/Loading";
@@ -23,57 +23,55 @@ export default function Mychats({ navigation, route }) {
 
   const db = firebase.firestore();
 
-  var ref = db
-    .collection("Personal")
-    .doc(email)
-    .collection(email)
-    .orderBy("lastActive", "desc");
+  var ref = db.collection("Posts").orderBy("servicedatestamp");
 
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const todaysDate = new Date();
+
+  const dateString = todaysDate.toDateString();
+  //console.log("month", month);
 
   function Item({ id, navigation, user }) {
+    //console.log("month", month);
     //console.log("@@userinmychats", user);
+    const date1 = new Date(dateString);
+    const date2 = new Date(user.servicedate);
+    //const servicedate = user.servicedate;
+    //console.log(getDifferenceInDays(todaysDate, servicedate));
+    const minusDates = getDifferenceInDays(date1, date2);
+    const dueDate = 90 - minusDates;
+    //console.log(dueDate);
+    function getDifferenceInDays(date1, date2) {
+      const diffInMs = Math.abs(date1 - date2);
+      return diffInMs / (1000 * 60 * 60 * 24);
+    }
+
+    //console.log("duedate", dueDate.toDateString());
+
     return (
       <View>
         <TouchableOpacity
           onPress={() =>
             navigation.navigate("Privatechat", {
-              otherUser: { email: user.id, name: user.name },
-              email,
-              name,
+              route: route,
+              navigation,
+              no: user.Number,
+              name: user.Post,
+              // otherUser: { email: user.id, name: user.name },
+              // email,
+              // name,
             })
           }
           style={styles.item}
         >
-          <Text style={styles.title}>{user.name}</Text>
+          <Text style={styles.title}>{user.Post}</Text>
+          <Text style={styles.title}>Phone {user.Number}</Text>
+          <Text style={styles.title}>Days left for next service {dueDate}</Text>
         </TouchableOpacity>
       </View>
     );
   }
-
-  // function getPrivateData() {
-  //   unsubscribe = ref.onSnapshot((querySnapshot) => {
-  //     const list = querySnapshot.docs.map((documentSnapshot) => {
-  //       return {
-  //         id: documentSnapshot.id,
-  //         ...documentSnapshot.data(),
-  //       };
-  //     });
-
-  //     setListData(list).then(unsubscribe());
-  //   });
-
-  //   // db.terminate();
-  //   if (loading) {
-  //     setLoading(false);
-  //     <Loading />;
-  //   }
-  // }
-
-  // async function setListData(list) {
-  //   setData(list);
-  // }
 
   useEffect(() => {
     const unsubscribe = ref.onSnapshot((querySnapshot) => {
