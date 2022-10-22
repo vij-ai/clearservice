@@ -16,24 +16,29 @@ import { useEffect, useState } from "react";
 import "firebase/firestore";
 import Loading from "../components/Loading";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TextInput } from "react-native-paper";
+import { ScrollView } from "react-native-gesture-handler";
 
 export default function Mychats({ navigation, route }) {
   var email = route.params.route.params.email;
   var name = route.params.route.params.name;
-
+  //var filteredList = [""];
   const db = firebase.firestore();
 
-  var ref = db.collection("Posts").orderBy("servicedatestamp");
+  var ref = db.collection("Posts" + email).orderBy("servicedatestamp");
 
   const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [query, setQuery] = useState("");
   const [data, setData] = useState([]);
+
   const todaysDate = new Date();
 
   const dateString = todaysDate.toDateString();
   //console.log("month", month);
 
   function Item({ id, navigation, user }) {
-    //console.log("month", month);
+    console.log("service in tab2", user.serviceDetails);
     //console.log("@@userinmychats", user);
     const date1 = new Date(dateString);
     const date2 = new Date(user.servicedate);
@@ -58,6 +63,7 @@ export default function Mychats({ navigation, route }) {
               navigation,
               no: user.Number,
               name: user.Post,
+              service: user.serviceDetails,
               // otherUser: { email: user.id, name: user.name },
               // email,
               // name,
@@ -84,6 +90,7 @@ export default function Mychats({ navigation, route }) {
       });
 
       setData(list);
+      console.log("list", list);
 
       if (loading) {
         setLoading(false);
@@ -94,16 +101,72 @@ export default function Mychats({ navigation, route }) {
      * unsubscribe listener
      */
     return () => unsubscribe();
-  }, []);
+  }, [query]);
 
   if (loading) {
     return <Loading />;
   }
   //console.log("data", data);
 
+  function handleSearch(queryText) {
+    setQuery(queryText);
+    var docRef = db.collection("Posts" + email).doc(queryText);
+
+    docRef
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          //setData(doc.data());
+          var filteredList = [doc.data()];
+          setData(filteredList);
+          //setData(filteredList);
+          //setData(filteredList);
+          //console.log("data in filtered list ", filteredList);
+          //console.log("Document data:", data);
+        } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+        }
+      })
+      .catch((error) => {
+        console.log("Error getting document:", error);
+      });
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
+        keyboardShouldPersistTaps="always"
+        ListHeaderComponent={
+          <View
+            style={{
+              backgroundColor: "#fff",
+              padding: 5,
+              marginVertical: 0,
+              borderRadius: 10,
+            }}
+          >
+            <TextInput
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="numeric"
+              blurOnSubmit={false}
+              //clearButtonMode="always"
+              //clearButtonMode="while-editing"
+              value={query}
+              onChangeText={(queryText) => {
+                setQuery(queryText);
+                if (queryText.length === 10) {
+                  {
+                    handleSearch(queryText);
+                  }
+                }
+              }}
+              placeholder="Search phone number"
+              style={{ backgroundColor: "#fff", paddingHorizontal: 20 }}
+            />
+          </View>
+        }
         data={data}
         renderItem={({ item }) => (
           <Item id={item.id} navigation={navigation} user={item} />

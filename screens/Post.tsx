@@ -21,18 +21,21 @@ export default function Post({ navigation, route }) {
 
   const [date, setDate] = useState(new Date());
 
-  const handleButtonPress = (Post, No, date, dateStamp) => {
+  const handleButtonPress = (Post, No, serviceDetails, date, dateStamp) => {
     const db = firebase.firestore();
 
-    db.collection("Posts").doc(No).set({
-      Post: Post,
-      Number: No,
-      email: route.params.email,
-      name: route.params.name,
-      servicedate: date,
-      servicedatestamp: dateStamp,
-      createdAt: new Date().getTime(),
-    });
+    db.collection("Posts" + route.params.email)
+      .doc(No)
+      .set({
+        Post: Post,
+        Number: No,
+        serviceDetails: serviceDetails,
+        email: route.params.email,
+        name: route.params.name,
+        servicedate: date,
+        servicedatestamp: dateStamp,
+        createdAt: new Date().getTime(),
+      });
     navigation.goBack();
   };
 
@@ -84,6 +87,7 @@ export default function Post({ navigation, route }) {
             clearButtonMode="while-editing"
             style={styles.input}
             theme={{ colors: { primary: "black" } }}
+            maxLength={10}
           />
           <TextInput
             label="Service details"
@@ -130,13 +134,19 @@ export default function Post({ navigation, route }) {
             modevalue="contained"
             labelStyle={styles.buttonLabel}
             onPress={() =>
-              handleButtonPress(Post, No, date.toDateString(), date)
+              handleButtonPress(
+                Post,
+                No,
+                serviceDetails,
+                date.toDateString(),
+                date
+              )
             }
             disabled={
               Post.length < 1 ||
               Post.length > 180 ||
               No.length < 10 ||
-              No.length > 12
+              No.length > 10
             }
             uppercase={false}
           />
@@ -144,8 +154,7 @@ export default function Post({ navigation, route }) {
         <View>
           <Title style={styles.notes}>
             {" "}
-            Min 1 characters for Name{"\n"} Phone number should be 10 to 12
-            characters
+            Min 1 characters for Name{"\n"} Phone number should be 10 digits
           </Title>
         </View>
       </ScrollView>

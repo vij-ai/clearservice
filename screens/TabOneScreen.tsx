@@ -58,6 +58,7 @@ export default function HomeScreen({ navigation, route }) {
   }, []);
 
   var email = route.params.route.params.email;
+  console.log("email", email);
   var name = route.params.route.params.name;
 
   const [messages, setMessages] = useState([]);
@@ -70,8 +71,9 @@ export default function HomeScreen({ navigation, route }) {
 
   const [data, setData] = useState([]);
   const db = firebase.firestore();
+  const ref = db.collection("Posts" + email).orderBy("createdAt", "desc");
 
-  const tokenlist = firebase.firestore().collection("expopushtokennew");
+  //const tokenlist = firebase.firestore().collection("expopushtokennew");
   //console.log("tokenlist", tokenlist);
 
   // useEffect(() => {
@@ -168,11 +170,6 @@ export default function HomeScreen({ navigation, route }) {
   //   return token;
   // }
 
-  const ref = firebase
-    .firestore()
-    .collection("Posts")
-    .orderBy("createdAt", "desc");
-
   useEffect(() => {
     return ref.onSnapshot((querySnapshot) => {
       const list = [];
@@ -181,10 +178,11 @@ export default function HomeScreen({ navigation, route }) {
         //console.log("Chatmessahes", ChatMessages);
         list.push({
           pic: require("../assets/images/Benares.jpg"),
-
+          id: ChatMessages.Number,
           createdAt: ChatMessages.createdAt,
           title: ChatMessages.Post,
           number: ChatMessages.Number,
+          serviceDetails: ChatMessages.serviceDetails,
           servicedate: ChatMessages.servicedate,
           email: ChatMessages.email,
           name: ChatMessages.name,
@@ -201,7 +199,7 @@ export default function HomeScreen({ navigation, route }) {
   if (loading) {
     return <Loading />;
   }
-
+  //console.log("messages", messages);
   return (
     <SafeAreaView style={styless.container}>
       <Swiper
